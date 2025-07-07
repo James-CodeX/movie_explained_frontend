@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { Film, Users, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MovieGrid } from '@/components/movie/movie-grid';
 import { useAuthStore } from '@/store/auth-store';
+import { useFeaturedMovies } from '@/hooks/use-movies';
 
 export function HomePage() {
   const { isAuthenticated, user } = useAuthStore();
@@ -17,6 +19,8 @@ export function HomePage() {
 }
 
 function AuthenticatedHome({ user }: { user: { first_name?: string; username: string; preferences?: { favorite_genres?: string[] } } }) {
+  const { data: featuredData, isLoading: featuredLoading } = useFeaturedMovies();
+  
   return (
     <div className="container mx-auto max-w-7xl py-12">
       <div className="mb-12 text-center">
@@ -99,11 +103,29 @@ function AuthenticatedHome({ user }: { user: { first_name?: string; username: st
           </p>
         </div>
       )}
+      
+      {/* Featured Movies Section */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold">Featured Movies</h2>
+          <Button variant="outline" asChild>
+            <Link href="/movies">View All Movies</Link>
+          </Button>
+        </div>
+        
+        <MovieGrid 
+          movies={featuredData?.results.slice(0, 10) || []} 
+          isLoading={featuredLoading}
+          showGenres={true}
+        />
+      </div>
     </div>
   );
 }
 
 function UnauthenticatedHome() {
+  const { data: featuredData, isLoading: featuredLoading } = useFeaturedMovies();
+  
   return (
     <div className="container mx-auto max-w-7xl py-12">
       {/* Hero Section */}
@@ -188,6 +210,25 @@ function UnauthenticatedHome() {
             </CardDescription>
           </CardHeader>
         </Card>
+      </div>
+      
+      {/* Featured Movies Section */}
+      <div className="mb-16">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold">Featured Movies</h2>
+          <Button variant="outline" asChild>
+            <Link href="/movies">View All Movies</Link>
+          </Button>
+        </div>
+        <p className="text-muted-foreground mb-8">
+          Discover some of our hand-picked movies with detailed explanations and insights.
+        </p>
+        
+        <MovieGrid 
+          movies={featuredData?.results.slice(0, 10) || []} 
+          isLoading={featuredLoading}
+          showGenres={true}
+        />
       </div>
 
       {/* CTA Section */}
